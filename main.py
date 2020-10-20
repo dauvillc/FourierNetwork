@@ -54,18 +54,29 @@ def f(x: torch.Tensor):
 
 
 if __name__ == '__main__':
-    net = FourierSeriesNet(1 / (2 * np.pi), 10).double()
+    # Create the net
+    # Parameters:
+    harmonics = 10
+    base_freq = 1 / (2 * np.pi)
+    net = FourierSeriesNet(base_freq, harmonics).double()
 
+    # Optimizer and Loss Function
     optimizer = torch.optim.SGD(net.parameters(), lr=0.1)
     net.zero_grad()
     loss_func = nn.MSELoss()
 
+    # Training parameters
     epochs = 150
+    batch_size = 32
 
+    # Memorize the error to plot it later on
     errors = torch.empty(epochs)
+
+    # Training loop
     for i in range(epochs):
         optimizer.zero_grad()
-        x = torch.rand((32, 1)).double() * np.pi * 2
+        # Random input
+        x = torch.rand((batch_size, 1)).double() * np.pi * 2
         output = net(x)
         target = f(x)
         loss = loss_func(output, target)
@@ -73,17 +84,23 @@ if __name__ == '__main__':
         optimizer.step()
         errors[i] = loss.item()
 
+    # Plotting the loss as well as the plot approximated by the network after the training
     with torch.no_grad():
         x = torch.from_numpy(np.linspace(0, np.pi * 2, 100)).double()
 
         plt.figure()
+
         axes = plt.subplot(211)
+        # Network approximated plot
         plt.plot(x, net(x))
+        # Real curve
         plt.plot(x, f(x), "g")
-        plt.title("Réseau de neurones trigonométrique")
-        plt.ylim(-3, 3)
+        plt.title("Neural network approximation of Fourier Series Expansion")
+        plt.legend(["Network approximation", "Real curve"])
+
         plt.subplot(212)
         plt.title("MSE Loss")
+        plt.xlabel("Epochs")
         plt.plot([i for i in range(epochs)], errors, "r-")
         plt.show()
 
