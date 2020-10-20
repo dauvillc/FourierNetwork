@@ -48,9 +48,11 @@ def f(x: torch.Tensor):
     Periodic function the network should approximate.
     :param x: Batch of data of shape (batch_size, 1)
     """
+    # Some examples of 2-pi-periodic functions
     # return torch.cos(x.clone().detach())
     # return sum((torch.cos(i * x) + torch.sin(i * x) for i in range(3)))
-    return torch.cos(x) + torch.sin(3 * x) + 2 * torch.cos(2 * x) + torch.cos(4 * x) + torch.sin(9 * x)
+    # return torch.cos(x) + 2.7 * torch.sin(3 * x) + 2 * torch.cos(2 * x) + torch.cos(4 * x) + torch.sin(9 * x)
+    return torch.cos(x) * torch.sin(x) + torch.sin(7 * x) + torch.cos(6 * x + 2.3)
 
 
 if __name__ == '__main__':
@@ -90,17 +92,28 @@ if __name__ == '__main__':
 
         plt.figure()
 
-        axes = plt.subplot(211)
+        axes = plt.subplot(221)
         # Network approximated plot
         plt.plot(x, net(x))
         # Real curve
         plt.plot(x, f(x), "g")
-        plt.title("Neural network approximation of Fourier Series Expansion")
+        plt.title("Approximation on the trained interval")
         plt.legend(["Network approximation", "Real curve"])
 
-        plt.subplot(212)
+        plt.subplot(222)
         plt.title("MSE Loss")
         plt.xlabel("Epochs")
         plt.plot([i for i in range(epochs)], errors, "r-")
+
+        # Plotting the network's approximation on an interval on which it hasn't trained
+        plt.subplot(223)
+        x = torch.from_numpy(np.linspace(np.pi, np.pi * 1.5, 100)).double()
+        plt.plot(x, net(x))
+        # Real curve
+        plt.plot(x, f(x), "g")
+        plt.title("Approximation on a non-trained interval")
+        plt.legend(["Network approximation", "Real curve"])
+
+
         plt.show()
 
